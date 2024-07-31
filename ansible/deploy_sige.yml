@@ -1,0 +1,25 @@
+- name: Deploy application using Docker Compose
+  hosts: all
+  become: true
+  vars_files:
+    - host_vars/repository.yml
+
+  tasks:
+    - name: Clone the repository
+      ansible.builtin.git:
+        repo: "{{ sige_master_repo }}"
+        dest: "{{ sige_master_path }}"
+        version: "development"
+      register: git
+
+    - name: Stop existing Docker containers
+      community.docker.docker_compose_v2:
+        project_src: "{{ project_path }}"
+        state: absent
+      when: git.changed # noqa: no-handler
+
+    - name: Start Docker containers and build
+      community.docker.docker_compose_v2:
+        project_src: "{{ project_path }}"
+        state: present
+        build: always
