@@ -1,54 +1,53 @@
 image:
-    name: hashicorp/terraform
-    entrypoint: ['']
+  name: hashicorp/terraform
+  entrypoint: ['']
+
+cache:
+  - key: $CI_PIPELINE_ID-terraform-cache
+    paths:
+      - .terraform/
+      - .terraform.lock.hcl
 
 stages:
-    - setup
-    - plan
-    - apply
-    - destroy
+  - setup
+  - plan
+  - apply
+  - destroy
 
 format:
-    stage: setup
-    script:
-        - terraform fmt
-    allow_failure: true
+  stage: setup
+  script:
+    - terraform fmt
+  cache: []
+  allow_failure: true
 
-download_provider:
-    stage: setup
-    script:
-        - terraform init
-    cache:
-        - key: $CI_PIPELINE_ID-terraform-cache
-          paths:
-              - .terraform/
-              - .terraform.lock.hcl
+init:
+  stage: setup
+  script:
+    - terraform init
 
 validate:
-    stage: setup
-    script:
-        - terraform validate
-    allow_failure: true
-
-plan:
-    stage: plan
-    script:
-        - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
-        - terraform plan -out=plan.out
-    artifacts:
-        paths:
-            - plan.out
+  stage: setup
+  script:
+    - terraform validate
+  allow_failure: true
 
 apply_infra:
-    when: manual
-    stage: apply
-    script:
-        - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
-        - terraform apply -auto-approve plan.out
+  stage: apply
+  script:
+    - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
+    - terraform apply -auto-approve
+  artifacts:
+    name: '$CI_JOB_NAME'
+    paths:
+      - ./hosts
+    expire_in: 6 hours
+  when: manual
 
 destroy_infra:
-    when: manual
-    stage: destroy
-    script:
-        - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
-        - terraform destroy -auto-approve
+  stage: destroy
+  script:
+    - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
+    - terraform destroy -auto-approve
+  when: manual
+
