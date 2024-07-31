@@ -4,6 +4,10 @@ image:
 
 variables:
   TF_ROOT: ${CI_PROJECT_DIR}/terraform
+  TF_STATE_NAME: 'terraform.tfstate'
+  TF_ADDRESS: 'https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}'
+  TF_USERNAME: ${GITLAB_USERNAME}
+  TF_PASSWORD: ${TF_ACCESS_TOKEN}
 
 cache:
   key: '${CI_COMMIT_REF_SLUG}'
@@ -31,6 +35,14 @@ init:
   stage: setup
   script:
     - terraform init
+      -backend-config=address=${TF_ADDRESS}
+      -backend-config=lock_address=${TF_ADDRESS}/lock
+      -backend-config=unlock_address=${TF_ADDRESS}/lock
+      -backend-config=username=${TF_USERNAME}
+      -backend-config=password=${TF_PASSWORD}
+      -backend-config=lock_method=POST
+      -backend-config=unlock_method=DELETE
+      -backend-config=retry_wait_min=5
 
 validate:
   stage: setup
