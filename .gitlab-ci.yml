@@ -4,6 +4,7 @@ image:
 
 variables:
   TF_ROOT: ${CI_PROJECT_DIR}/terraform
+  ANSIBLE_ROOT: ${CI_PROJECT_DIR}/ansible
   TF_STATE_NAME: 'terraform.tfstate'
   TF_ADDRESS: 'https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}'
   TF_USERNAME: ${GITLAB_USERNAME}
@@ -64,8 +65,8 @@ apply_infra:
   artifacts:
     name: '$CI_JOB_NAME'
     paths:
-      - ./hosts
-    expire_in: 6 hours
+      - ${ANSIBLE_ROOT}/hosts
+    expire_in: never
   when: manual
 
 destroy_infra:

@@ -15,3 +15,8 @@ variable "region" {
   default     = "sfo3"
 }
 
+variable "host_path_file" {
+  description = "Path to the host file"
+  type        = string
+  default     = "../ansible/hosts"
+}
