@@ -13,7 +13,7 @@ cache:
   - key: $CI_PIPELINE_ID-terraform-cache
     paths:
       - ${TF_ROOT}/.terraform/
-      - ${TF_ROOT}/terraform.tfstate
+      - ${TF_ROOT}/.terraform.lock.hcl
 
 stages:
   - setup
@@ -24,6 +24,10 @@ stages:
 before_script:
   - terraform --version
   - cd ${TF_ROOT}
+  - echo "TF_ROOT = ${TF_ROOT}"
+  - echo "Listar arquivos no diretório"
+  - pwd
+  - ls -la
 
 format:
   stage: setup
