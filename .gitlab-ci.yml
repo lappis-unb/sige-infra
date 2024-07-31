@@ -2,11 +2,13 @@ image:
   name: hashicorp/terraform
   entrypoint: ['']
 
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}/terraform
+
 cache:
   key: '${CI_COMMIT_REF_SLUG}'
   paths:
-    - terraform/.terraform/
-    - terraform/.terraform.lock.hcl
+    - ${TF_ROOT}/.terraform/
 
 stages:
   - setup
@@ -16,7 +18,7 @@ stages:
 
 before_script:
   - terraform --version
-  - cd terraform
+  - cd ${TF_ROOT}
 
 format:
   stage: setup
@@ -40,6 +42,7 @@ apply_infra:
   stage: apply
   script:
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
+    - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
     - terraform apply -auto-approve
   artifacts:
     name: '$CI_JOB_NAME'
