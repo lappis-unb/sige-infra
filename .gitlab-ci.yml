@@ -18,7 +18,7 @@ cache:
 
 stages:
   - setup
-  - plan
+  - validate
   - apply
   - destroy
 
@@ -51,7 +51,7 @@ init:
       -backend-config=retry_wait_min=5
 
 validate:
-  stage: setup
+  stage: validate
   script:
     - terraform validate
   allow_failure: true
