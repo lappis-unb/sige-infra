@@ -1,0 +1,54 @@
+stages:
+    - setup
+    - plan
+    - apply
+    - destroy
+
+format:
+    stage: setup
+    image: hashicorp/terraform
+    script:
+        - terraform fmt
+    allow_failure: true
+
+download_provider:
+    stage: setup
+    image: hashicorp/terraform
+    script:
+        - terraform init
+    cache:
+        - key: $CI_PIPELINE_ID-terraform-cache
+          paths:
+              - .terraform/
+              - .terraform.lock.hcl
+
+validate:
+    stage: setup
+    image: hashicorp/terraform
+    script:
+        - terraform validate
+    allow_failure: true
+
+plan:
+    stage: plan
+    image: hashicorp/terraform
+    script:
+        - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
+        - terraform plan -out=plan.out
+    artifacts:
+        paths:
+            - plan.out
+
+apply_infra:
+    when: manual
+    stage: apply
+    script:
+        - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
+        - terraform apply -auto-approve plan.out
+
+destroy_infra:
+    when: manual
+    stage: destroy
+    script:
+        - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
+        - terraform destroy -auto-approve
