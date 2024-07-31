@@ -1,0 +1,9 @@
+---
+- name: Create and configure user Ansible
+  import_playbook: playbooks/create_user.yaml
+
+- name: Install basic packages
+  import_playbook: playbooks/install_basic_pkgs.yaml
+
+- name: Install and configure Docker
+  import_playbook: playbooks/install_docker.yaml
