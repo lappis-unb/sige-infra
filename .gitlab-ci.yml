@@ -3,16 +3,20 @@ image:
   entrypoint: ['']
 
 cache:
-  - key: $CI_PIPELINE_ID-terraform-cache
-    paths:
-      - .terraform/
-      - .terraform.lock.hcl
+  key: '${CI_COMMIT_REF_SLUG}'
+  paths:
+    - terraform/.terraform/
+    - terraform/.terraform.lock.hcl
 
 stages:
   - setup
   - plan
   - apply
   - destroy
+
+before_script:
+  - terraform --version
+  - cd terraform
 
 format:
   stage: setup
