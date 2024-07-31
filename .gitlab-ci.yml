@@ -50,4 +50,3 @@ destroy_infra:
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - terraform destroy -auto-approve
   when: manual
-
