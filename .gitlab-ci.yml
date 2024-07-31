@@ -10,9 +10,10 @@ variables:
   TF_PASSWORD: ${TF_ACCESS_TOKEN}
 
 cache:
-  key: '${CI_COMMIT_REF_SLUG}'
-  paths:
-    - ${TF_ROOT}/.terraform/
+  - key: $CI_PIPELINE_ID-terraform-cache
+    paths:
+      - ${TF_ROOT}/.terraform/
+      - ${TF_ROOT}/terraform.tfstate
 
 stages:
   - setup
