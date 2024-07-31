@@ -20,6 +20,7 @@ stages:
   - setup
   - validate
   - apply
+  - deploy
   - destroy
 
 before_script:
@@ -68,6 +69,22 @@ apply_infra:
       - ${ANSIBLE_ROOT}/hosts
     expire_in: never
   when: manual
+
+deploy_homolog:
+  image: alpinelinux/ansible
+  stage: deploy
+  before_script:
+    - cd ${ANSIBLE_ROOT}
+  script:
+    - eval $(ssh-agent -s)
+    - chmod 400 "${SSH_PRIVATE_KEY}"
+    - ssh-add "${SSH_PRIVATE_KEY}"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ansible-playbook -i hosts -l initial_setup.yaml
+    - ansible-playbook -i hosts -l deploy_sige.yaml
+  when: manual
+  cache: []
 
 destroy_infra:
   stage: destroy

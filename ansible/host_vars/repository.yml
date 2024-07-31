@@ -1,2 +1,4 @@
-sige_master_repo: 'https://gitlab.com/lappis-unb/projetos-energia/SIGE/sige-master.git'
-sige_master_path: '/home/lappis/sige-mater'
+sige_master_repo: 'https://gitlab.com/lappis-unb/projetos-energia/mec-energia/mec-energia-web'
+sige_master_path: '/home/lappis/app'
+# sige_master_repo: 'https://gitlab.com/lappis-unb/projetos-energia/SIGE/sige-master.git'
+# sige_master_path: '/home/lappis/sige-mater'
