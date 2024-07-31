@@ -73,5 +73,6 @@ destroy_infra:
   stage: destroy
   script:
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
+    - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
     - terraform destroy -auto-approve
   when: manual
