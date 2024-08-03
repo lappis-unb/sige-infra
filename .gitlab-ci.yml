@@ -80,13 +80,10 @@ create_infra:
     - job: init_backend
 
 setup_infra:
-  image: cytopia/ansible:latest
+  image: cytopia/ansible:2.13-infra
   stage: infra
   before_script:
-    - pwd
-    - ls -la
-    - ls -la $ANSIBLE_ROOT
-    - ls -la $TF_ROOT
+    - ansible --version
     - mv $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
     - mkdir -p ~/.ssh
@@ -94,10 +91,6 @@ setup_infra:
     - chmod 400 ~/.ssh/sige_ed25519
     - chmod 700 ~/.ssh
   script:
-    - echo "script"
-    - pwd
-    - ls -la
-    - cat $HOSTS_FILE
     - ansible-playbook -i hosts -l homolog initial_setup.yml --private-key ~/.ssh/sige_ed25519
     - rm -f ~/.ssh/sige_ed25519
   cache: []
@@ -106,26 +99,17 @@ setup_infra:
       artifacts: true
 
 deploy_homolog:
-  image: cytopia/ansible:latest
+  image: cytopia/ansible:2.13-infra
   stage: deploy
   before_script:
-    - echo "before_script"
-    - pwd
-    - ls -la
+    - ansible --version
     - mv $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
-    - pwd
-    - ls -la
-    - cat $HOSTS_FILE
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
     - chmod 700 ~/.ssh
   script:
-    - echo "script"
-    - pwd
-    - ls -la
-    - cat $HOSTS_FILE
     - ansible-playbook -i hosts -l homolog deploy_sige.yml --private-key ~/.ssh/sige_ed25519
     - rm -f ~/.ssh/sige_ed25519
   when: manual
@@ -139,7 +123,7 @@ deploy_homolog:
     url: http://$DROPLET_IP
 
 deploy_prod:
-  image: cytopia/ansible:latest
+  image: cytopia/ansible:2.13-infra
   stage: deploy
   script:
     - echo "Deploying to production"
