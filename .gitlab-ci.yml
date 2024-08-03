@@ -87,7 +87,7 @@ create_infra:
     - ls -la
   artifacts:
     paths:
-      - ./hosts
+      - ${TF_ROOT}/hosts
     expire_in: never
   when: manual
   needs:
@@ -97,12 +97,13 @@ setup_infra:
   image: alpinelinux/ansible
   stage: infra
   before_script:
-    - cp $HOSTS_FILE $ANSIBLE_ROOT
-    - cd $ANSIBLE_ROOT
     - echo "before_script"
     - pwd
     - ls -la
-    - cat $HOSTS_FILE
+    - ls -la $ANSIBLE_ROOT
+    - ls -la $TF_ROOT
+    - mv ${TF_ROOT}/hosts $ANSIBLE_ROOT
+    - cd $ANSIBLE_ROOT
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
@@ -126,7 +127,7 @@ deploy_homolog:
     - echo "before_script"
     - pwd
     - ls -la
-    - cp $HOSTS_FILE $ANSIBLE_ROOT
+    - mv ${TF_ROOT}/hosts $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
     - pwd
     - ls -la
