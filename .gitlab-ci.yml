@@ -27,7 +27,6 @@ stages:
 
 before_script:
   # debug - remove before production
-  echo "Debug info"
   - pwd
   - ls -la
   - ls -la ${TF_ROOT}
@@ -71,15 +70,23 @@ create_infra:
     - cd ${TF_ROOT}
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
+    - echo "before_script"
+    - pwd
+    - ls -la
   script:
+    - echo "script"
+    - pwd
+    - ls -la
     - terraform apply -auto-approve
   after_script:
     - echo "Exporting droplet IP to Ansible hosts file"
     - DROPLET_IP=$(terraform output -raw droplet_ip)
     - echo "[homolog]" > $HOSTS_FILE
     - echo "$DROPLET_IP" >> $HOSTS_FILE
+    - echo "after_script"
     - pwd
     - ls -la
+    - cat $HOSTS_FILE
   artifacts:
     paths:
       - ./hosts
@@ -94,13 +101,19 @@ setup_infra:
   before_script:
     - cp $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
+    - echo "before_script"
     - pwd
     - ls -la
+    - cat $HOSTS_FILE
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
     - chmod 700 ~/.ssh
   script:
+    - echo "script"
+    - pwd
+    - ls -la
+    - cat $HOSTS_FILE
     - ansible-playbook -i hosts -l homolog initial_setup.yml --private-key ~/.ssh/sige_ed25519
     - rm -f ~/.ssh/sige_ed25519
   cache: []
@@ -113,13 +126,19 @@ deploy_homolog:
   before_script:
     - cp $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
+    - echo "before_script"
     - pwd
     - ls -la
+    - cat $HOSTS_FILE
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
     - chmod 700 ~/.ssh
   script:
+    - echo "script"
+    - pwd
+    - ls -la
+    - cat $HOSTS_FILE
     - ansible-playbook -i hosts -l homolog deploy_sige.yml --private-key ~/.ssh/sige_ed25519
     - rm -f ~/.ssh/sige_ed25519
   when: manual
