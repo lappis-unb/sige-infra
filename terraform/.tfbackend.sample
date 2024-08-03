@@ -1,0 +1,12 @@
+# ---------------------------------------------------------------------------------------------------------------------
+# Configure the remote backend for Gitlab
+
+
+username        = "<YOUR-USERNAME>""
+password        = "<YOUR-ACCESS-TOKEN>"
+address         = "<YOUR-BACKEND-ADDRESS>"
+lock_address    = "<YOUR-LOCK-ADDRESS>"
+unlock_address  = "<YOUR-UNLOCK-ADDRESS>"
+lock_method     = "POST"
+unlock_method   = "DELETE"
+retry_wait_min  = 5

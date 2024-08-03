@@ -1,0 +1,14 @@
+# Environment variables for Digital Ocean
+
+ssh_key  = "pubkey for add in droplets"
+do_token = "digital ocean token"
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Configure the backend for local development
+
+gl_username           = "Gitlab username"
+gl_token              = "Gitlab Access Token"
+remote_state_address  = "Gitlab Address the state"
+remote_lock_address   = "Gitlab Address to lock the state"
+remote_unlock_address = "Gitlab Address to unlock the state"
+# ---------------------------------------------------------------------------------------------------------------------
