@@ -19,26 +19,22 @@ cache:
 stages:
   - setup
   - validate
-  - apply
+  - infra
   - deploy
-  - destroy
+  - cleanup
 
 before_script:
   - terraform --version
   - cd ${TF_ROOT}
-  - echo "TF_ROOT = ${TF_ROOT}"
-  - echo "Listar arquivos no diretório"
-  - pwd
-  - ls -la
 
-format:
+check_format:
   stage: setup
   script:
     - terraform fmt
   cache: []
   allow_failure: true
 
-init:
+init_backend:
   stage: setup
   script:
     - terraform init
@@ -51,14 +47,16 @@ init:
       -backend-config=unlock_method=DELETE
       -backend-config=retry_wait_min=5
 
-validate:
+check_config:
   stage: validate
   script:
     - terraform validate
   allow_failure: true
+  needs:
+    - job: init_backend
 
-apply_infra:
-  stage: apply
+create_infra:
+  stage: infra
   script:
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
@@ -69,6 +67,24 @@ apply_infra:
       - ${ANSIBLE_ROOT}/hosts
     expire_in: never
   when: manual
+  needs:
+    - job: init_backend
+
+setup_infra:
+  image: alpinelinux/ansible
+  stage: infra
+  before_script:
+    - cd ${ANSIBLE_ROOT}
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
+    - chmod 400 ~/.ssh/sige_ed25519
+    - chmod 700 ~/.ssh
+  script:
+    - ansible-playbook -i hosts -l homolog initial_setup.yml --private-key ~/.ssh/sige_ed25519
+    - rm -f ~/.ssh/sige_ed25519
+  cache: []
+  needs:
+    - job: create_infra
 
 deploy_homolog:
   image: alpinelinux/ansible
@@ -80,16 +96,29 @@ deploy_homolog:
     - chmod 400 ~/.ssh/sige_ed25519
     - chmod 700 ~/.ssh
   script:
-    - ansible-playbook -i hosts -l homolog initial_setup.yml --private-key ~/.ssh/sige_ed25519
     - ansible-playbook -i hosts -l homolog deploy_sige.yml --private-key ~/.ssh/sige_ed25519
     - rm -f ~/.ssh/sige_ed25519
   when: manual
+  needs:
+    - job: setup_infra
+  cache: []
+
+deploy_prod:
+  image: alpinelinux/ansible
+  stage: deploy
+  script:
+    - echo "Deploying to production"
+  when: manual
+  needs:
+    - job: setup_infra
   cache: []
 
 destroy_infra:
-  stage: destroy
+  stage: cleanup
   script:
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
     - terraform destroy -auto-approve
   when: manual
+  needs:
+    - job: create_infra
