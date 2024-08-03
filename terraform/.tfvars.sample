@@ -4,7 +4,7 @@ ssh_key  = "pubkey for add in droplets"
 do_token = "digital ocean token"
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Configure the backend for local development
+# Configure the remote backend for Gitlab
 
 gl_username           = "Gitlab username"
 gl_token              = "Gitlab Access Token"

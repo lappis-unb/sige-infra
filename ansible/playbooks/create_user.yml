@@ -1,8 +1,8 @@
 - name: Configure User to automate tasks with Ansible
   hosts: all
   gather_facts: false
-  # vars:
-  #   ansible_ssh_user: "root"
+  vars:
+    ansible_ssh_user: "root"
   vars_files:
     - ../host_vars/users.yml
   tasks:
