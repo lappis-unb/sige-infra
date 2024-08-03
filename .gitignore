@@ -12,6 +12,7 @@ crash.*.log
 # Exclude all .tfvars files (sensitive data, private keys, and other secrets)
 *.tfvars
 *.tfvars.json
+*.tfbackend
 
 # Ignore override files
 override.tf
