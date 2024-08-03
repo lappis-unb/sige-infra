@@ -69,24 +69,25 @@ create_infra:
     - DROPLET_IP=$(terraform output -raw droplet_ip)
     - echo '[homolog]' > $HOSTS_FILE
     - echo $DROPLET_IP >> $HOSTS_FILE
+    - mv $$HOSTS_FILE ${CI_PROJECT_DIR}
+    - cat ${CI_PROJECT_DIR}/$HOSTS_FILE
   artifacts:
     paths:
-      - ${TF_ROOT}/hosts
+      - hosts
     expire_in: never
   when: manual
   needs:
     - job: init_backend
 
 setup_infra:
-  image: alpinelinux/ansible
+  image: cytopia/ansible:2.12
   stage: infra
   before_script:
-    - echo "before_script"
     - pwd
     - ls -la
     - ls -la $ANSIBLE_ROOT
     - ls -la $TF_ROOT
-    - mv ${TF_ROOT}/hosts $ANSIBLE_ROOT
+    - mv $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
@@ -105,13 +106,13 @@ setup_infra:
       artifacts: true
 
 deploy_homolog:
-  image: alpinelinux/ansible
+  image: cytopia/ansible:2.12
   stage: deploy
   before_script:
     - echo "before_script"
     - pwd
     - ls -la
-    - mv ${TF_ROOT}/hosts $ANSIBLE_ROOT
+    - mv $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
     - pwd
     - ls -la
@@ -138,7 +139,7 @@ deploy_homolog:
     url: http://$DROPLET_IP
 
 deploy_prod:
-  image: alpinelinux/ansible
+  image: cytopia/ansible:2.12
   stage: deploy
   script:
     - echo "Deploying to production"
