@@ -1,25 +1,24 @@
+---
 - name: Deploy application using Docker Compose
   hosts: all
-  become: true
+  gather_facts: false
   vars_files:
     - host_vars/repository.yml
-
   tasks:
-    - name: Clone the repository
+    - name: Clone or update the repository - branch development
       ansible.builtin.git:
         repo: "{{ sige_master_repo }}"
         dest: "{{ sige_master_path }}"
+        clone: true
+        update: true
+        single_branch: true
         version: "development"
+        force: true
       register: git
+      notify: Restart containers
 
-    - name: Stop existing Docker containers
-      community.docker.docker_compose_v2:
-        project_src: "{{ project_path }}"
-        state: absent
-      when: git.changed # noqa: no-handler
-
-    - name: Start Docker containers and build
-      community.docker.docker_compose_v2:
-        project_src: "{{ project_path }}"
-        state: present
-        build: always
+  handlers:
+    - name: Restart containers
+      ansible.builtin.command:
+        cmd: "docker compose -f {{ sige_master_path }}/docker-compose.yml up -d --force-recreate"
+      listen: "git"
