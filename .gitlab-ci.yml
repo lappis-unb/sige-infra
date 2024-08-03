@@ -3,8 +3,8 @@ image:
   entrypoint: ['']
 
 variables:
-  TF_ROOT: ${CI_PROJECT_DIR}/terraform
-  ANSIBLE_ROOT: ${CI_PROJECT_DIR}/ansible
+  TF_ROOT: 'terraform/'
+  ANSIBLE_ROOT: 'ansible/'
   TF_STATE_NAME: 'terraform.tfstate'
   TF_ADDRESS: 'https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}'
   TF_USERNAME: ${GITLAB_USERNAME}
@@ -26,8 +26,12 @@ stages:
   - cleanup
 
 before_script:
-  - terraform --version
-  - cd ${TF_ROOT}
+  # debug - remove before production
+  echo "Debug info"
+  - pwd
+  - ls -la
+  - ls -la ${TF_ROOT}
+  - ls -la ${ANSIBLE_ROOT}
 
 check_format:
   stage: setup
@@ -38,6 +42,8 @@ check_format:
 
 init_backend:
   stage: setup
+  before_script:
+    - cd ${TF_ROOT}
   script:
     - terraform init
       -backend-config=address=${TF_ADDRESS}
@@ -51,6 +57,8 @@ init_backend:
 
 check_config:
   stage: validate
+  before_script:
+    - cd ${TF_ROOT}
   script:
     - terraform validate
   allow_failure: true
@@ -59,15 +67,19 @@ check_config:
 
 create_infra:
   stage: infra
-  script:
+  before_script:
+    - cd ${TF_ROOT}
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
+  script:
     - terraform apply -auto-approve
   after_script:
     - echo "Exporting droplet IP to Ansible hosts file"
     - DROPLET_IP=$(terraform output -raw droplet_ip)
     - echo "[homolog]" > $HOSTS_FILE
     - echo "$DROPLET_IP" >> $HOSTS_FILE
+    - pwd
+    - ls -la
   artifacts:
     paths:
       - ./hosts
@@ -82,6 +94,8 @@ setup_infra:
   before_script:
     - cp $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
+    - pwd
+    - ls -la
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
@@ -99,6 +113,8 @@ deploy_homolog:
   before_script:
     - cp $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
+    - pwd
+    - ls -la
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
@@ -123,9 +139,11 @@ deploy_prod:
 
 destroy_infra:
   stage: cleanup
-  script:
+  before_script:
+    - cd ${TF_ROOT}
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
+  script:
     - terraform destroy -auto-approve
   when: manual
   needs:
