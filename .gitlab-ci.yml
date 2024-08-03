@@ -25,13 +25,6 @@ stages:
   - deploy
   - cleanup
 
-before_script:
-  # debug - remove before production
-  - pwd
-  - ls -la
-  - ls -la ${TF_ROOT}
-  - ls -la ${ANSIBLE_ROOT}
-
 check_format:
   stage: setup
   script:
@@ -70,21 +63,12 @@ create_infra:
     - cd ${TF_ROOT}
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
-    - echo "before_script"
-    - pwd
-    - ls -la
   script:
-    - echo "script"
-    - pwd
-    - ls -la
     - terraform apply -auto-approve
     - echo 'Exporting droplet IP to Ansible hosts file'
     - DROPLET_IP=$(terraform output -raw droplet_ip)
     - echo '[homolog]' > $HOSTS_FILE
-    - echo '$DROPLET_IP' >> $HOSTS_FILE
-    - echo $DROPLET_IP
-    - cat $HOSTS_FILE
-    - ls -la
+    - echo $DROPLET_IP >> $HOSTS_FILE
   artifacts:
     paths:
       - ${TF_ROOT}/hosts
