@@ -75,14 +75,14 @@ deploy_homolog:
   stage: deploy
   before_script:
     - cd ${ANSIBLE_ROOT}
-  script:
-    - eval $(ssh-agent -s)
-    - chmod 400 "${SSH_PRIVATE_KEY}"
-    - ssh-add "${SSH_PRIVATE_KEY}"
     - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
+    - chmod 400 ~/.ssh/sige_ed25519
     - chmod 700 ~/.ssh
-    - ansible-playbook -i hosts -l initial_setup.yaml
-    - ansible-playbook -i hosts -l deploy_sige.yaml
+  script:
+    - ansible-playbook -i hosts -l homolog initial_setup.yml --private-key ~/.ssh/sige_ed25519
+    - ansible-playbook -i hosts -l homolog deploy_sige.yml --private-key ~/.ssh/sige_ed25519
+    - rm -f ~/.ssh/sige_ed25519
   when: manual
   cache: []
 
