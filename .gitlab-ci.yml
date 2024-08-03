@@ -69,7 +69,7 @@ create_infra:
     - DROPLET_IP=$(terraform output -raw droplet_ip)
     - echo '[homolog]' > $HOSTS_FILE
     - echo $DROPLET_IP >> $HOSTS_FILE
-    - mv $$HOSTS_FILE ${CI_PROJECT_DIR}
+    - mv $HOSTS_FILE ${CI_PROJECT_DIR}
     - cat ${CI_PROJECT_DIR}/$HOSTS_FILE
   artifacts:
     paths:
@@ -80,7 +80,7 @@ create_infra:
     - job: init_backend
 
 setup_infra:
-  image: cytopia/ansible:2.12
+  image: cytopia/ansible:latest
   stage: infra
   before_script:
     - pwd
@@ -106,7 +106,7 @@ setup_infra:
       artifacts: true
 
 deploy_homolog:
-  image: cytopia/ansible:2.12
+  image: cytopia/ansible:latest
   stage: deploy
   before_script:
     - echo "before_script"
@@ -139,7 +139,7 @@ deploy_homolog:
     url: http://$DROPLET_IP
 
 deploy_prod:
-  image: cytopia/ansible:2.12
+  image: cytopia/ansible:latest
   stage: deploy
   script:
     - echo "Deploying to production"
