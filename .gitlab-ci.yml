@@ -78,14 +78,23 @@ create_infra:
     - pwd
     - ls -la
     - terraform apply -auto-approve
+    - terraform output -raw droplet_ip > hosts_script
+    - cat hosts_script
     - DROPLET_IP=$(terraform output -raw droplet_ip)
+    - echo $DROPLET_IP
+    - echo $DROPLET_IP > $hosts_script
+    - cat $hosts_script
   after_script:
-    - echo "Exporting droplet IP to Ansible hosts file"
-    - echo "[homolog]" > $HOSTS_FILE
-    - echo "$DROPLET_IP" >> $HOSTS_FILE
-    - echo "after_script"
+    - echo $DROPLET_IP
     - pwd
     - ls -la
+    - la -la ${TF_ROOT}
+    - echo 'Exporting droplet IP to Ansible hosts file'
+    - echo '[homolog]' > $HOSTS_FILE
+    - cat $HOSTS_FILE
+    - echo '$DROPLET_IP' >> $HOSTS_FILE
+    - cat $HOSTS_FILE
+    - echo '${DROPLET_IP}' >> $HOSTS_FILE
     - cat $HOSTS_FILE
   artifacts:
     paths:
@@ -119,6 +128,7 @@ setup_infra:
   cache: []
   needs:
     - job: create_infra
+      artifacts: true
 
 deploy_homolog:
   image: alpinelinux/ansible
@@ -144,9 +154,14 @@ deploy_homolog:
     - ansible-playbook -i hosts -l homolog deploy_sige.yml --private-key ~/.ssh/sige_ed25519
     - rm -f ~/.ssh/sige_ed25519
   when: manual
-  needs:
-    - job: setup_infra
   cache: []
+  needs:
+    - job: create_infra
+      artifacts: true
+    - job: setup_infra
+  environment:
+    name: homolog
+    url: http://$DROPLET_IP
 
 deploy_prod:
   image: alpinelinux/ansible
@@ -154,9 +169,11 @@ deploy_prod:
   script:
     - echo "Deploying to production"
   when: manual
-  needs:
-    - job: setup_infra
   cache: []
+  needs:
+    - job: create_infra
+      artifacts: true
+    - job: setup_infra
 
 destroy_infra:
   stage: cleanup
