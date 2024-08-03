@@ -9,7 +9,8 @@ variables:
   TF_ADDRESS: 'https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}'
   TF_USERNAME: ${GITLAB_USERNAME}
   TF_PASSWORD: ${TF_ACCESS_TOKEN}
-  ANSIBLE_HOST_KEY_CHECKING: "False"
+  ANSIBLE_HOST_KEY_CHECKING: 'False'
+  HOSTS_FILE: 'hosts'
 
 cache:
   - key: $CI_PIPELINE_ID-terraform-cache
@@ -62,10 +63,14 @@ create_infra:
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
     - terraform apply -auto-approve
+  after_script:
+    - echo "Exporting droplet IP to Ansible hosts file"
+    - DROPLET_IP=$(terraform output -raw droplet_ip)
+    - echo "[homolog]" > $HOSTS_FILE
+    - echo "$DROPLET_IP" >> $HOSTS_FILE
   artifacts:
-    name: '$CI_JOB_NAME'
     paths:
-      - ${ANSIBLE_ROOT}/hosts
+      - ./hosts
     expire_in: never
   when: manual
   needs:
@@ -75,7 +80,8 @@ setup_infra:
   image: alpinelinux/ansible
   stage: infra
   before_script:
-    - cd ${ANSIBLE_ROOT}
+    - cp $HOSTS_FILE $ANSIBLE_ROOT
+    - cd $ANSIBLE_ROOT
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
@@ -91,7 +97,8 @@ deploy_homolog:
   image: alpinelinux/ansible
   stage: deploy
   before_script:
-    - cd ${ANSIBLE_ROOT}
+    - cp $HOSTS_FILE $ANSIBLE_ROOT
+    - cd $ANSIBLE_ROOT
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
