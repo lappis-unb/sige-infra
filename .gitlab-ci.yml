@@ -78,9 +78,9 @@ create_infra:
     - pwd
     - ls -la
     - terraform apply -auto-approve
+    - DROPLET_IP=$(terraform output -raw droplet_ip)
   after_script:
     - echo "Exporting droplet IP to Ansible hosts file"
-    - DROPLET_IP=$(terraform output -raw droplet_ip)
     - echo "[homolog]" > $HOSTS_FILE
     - echo "$DROPLET_IP" >> $HOSTS_FILE
     - echo "after_script"
@@ -124,9 +124,11 @@ deploy_homolog:
   image: alpinelinux/ansible
   stage: deploy
   before_script:
+    - echo "before_script"
+    - pwd
+    - ls -la
     - cp $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
-    - echo "before_script"
     - pwd
     - ls -la
     - cat $HOSTS_FILE
