@@ -78,24 +78,13 @@ create_infra:
     - pwd
     - ls -la
     - terraform apply -auto-approve
-    - terraform output -raw droplet_ip > hosts_script
-    - cat hosts_script
-    - DROPLET_IP=$(terraform output -raw droplet_ip)
-    - echo $DROPLET_IP
-    - echo $DROPLET_IP > $hosts_script
-    - cat $hosts_script
-  after_script:
-    - echo $DROPLET_IP
-    - pwd
-    - ls -la
-    - la -la ${TF_ROOT}
     - echo 'Exporting droplet IP to Ansible hosts file'
+    - DROPLET_IP=$(terraform output -raw droplet_ip)
     - echo '[homolog]' > $HOSTS_FILE
-    - cat $HOSTS_FILE
     - echo '$DROPLET_IP' >> $HOSTS_FILE
+    - echo $DROPLET_IP
     - cat $HOSTS_FILE
-    - echo '${DROPLET_IP}' >> $HOSTS_FILE
-    - cat $HOSTS_FILE
+    - ls -la
   artifacts:
     paths:
       - ./hosts
