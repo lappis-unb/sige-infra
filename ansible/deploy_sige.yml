@@ -1,4 +1,3 @@
----
 - name: Deploy application using Docker Compose
   hosts: all
   gather_facts: false
@@ -14,11 +13,37 @@
         single_branch: true
         version: "development"
         force: true
-      register: git
-      notify: Restart containers
+      register: git_output
+      notify: Build and start services
 
-  handlers:
-    - name: Restart containers
-      ansible.builtin.command:
-        cmd: "docker compose -f {{ sige_master_path }}/docker-compose.yml up -d --force-recreate"
-      listen: "git"
+    - name: Show results of the git module
+      ansible.builtin.debug:
+        msg: >
+          repository {{ sige_master_repo }} => {
+          changed: {{ git_output.changed | bool | lower }},
+          message: {{ git_output.msg | default('No changes detected!') }} }
+
+    - name: Build and start services (if repo was updated)
+      community.docker.docker_compose_v2:
+        project_src: "{{ sige_master_path }}"
+        files: docker-compose.yml
+        state: present
+        build: always
+        recreate: always
+        pull: policy
+      when: git_output.changed is true # noqa: no-handler
+
+    - name: Start services (if repo is up-to-date)
+      community.docker.docker_compose_v2:
+        project_src: "{{ sige_master_path }}"
+        files: docker-compose.yml
+        state: present
+        build: never
+        recreate: never
+        pull: missing
+      when: git_output.changed is false # noqa: no-handler
+      register: compose_output
+
+    - name: Show results of Docker Compose
+      ansible.builtin.debug:
+        var: compose_output.stderr_lines
