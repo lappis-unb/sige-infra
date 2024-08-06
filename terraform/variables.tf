@@ -1,3 +1,8 @@
+variable "do_domain" {
+  description = "Digital Ocean Domain"
+  type        = string
+
+}
 variable "do_token" {
   description = "Digital Ocean Token"
   type        = string

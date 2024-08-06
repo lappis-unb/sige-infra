@@ -1,4 +1,4 @@
-resource "digitalocean_ssh_key" "sige_ssh_key" {
+resource "digitalocean_ssh_key" "default" {
   name       = "sige-ssh-key"
   public_key = var.ssh_key
 }
@@ -8,7 +8,7 @@ resource "digitalocean_droplet" "api_homolog" {
   image    = "debian-11-x64"
   region   = "sfo3"
   size     = "s-1vcpu-1gb-35gb-intel"
-  ssh_keys = [digitalocean_ssh_key.sige_ssh_key.fingerprint]
+  ssh_keys = [digitalocean_ssh_key.default.fingerprint]
 }
 
 resource "null_resource" "update_host_file" {

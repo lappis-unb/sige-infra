@@ -3,6 +3,7 @@
 ssh_key  = "pubkey for add in droplets"
 do_token = "digital ocean token"
 
+do_domain = "lappis.me"
 # ---------------------------------------------------------------------------------------------------------------------
 # Configure the remote backend for Gitlab
 
