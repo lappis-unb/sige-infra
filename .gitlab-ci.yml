@@ -5,6 +5,7 @@ image:
 variables:
   TF_ROOT: 'terraform/'
   ANSIBLE_ROOT: 'ansible/'
+  TF_CLI_ARGS: '-input=false'
   TF_STATE_NAME: 'terraform.tfstate'
   TF_ADDRESS: 'https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}'
   TF_USERNAME: ${GITLAB_USERNAME}
@@ -61,6 +62,7 @@ create_infra:
   stage: infra
   before_script:
     - cd ${TF_ROOT}
+    - export TF_VAR_do_domain=${DO_DOMAIN}
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
   script:
@@ -103,6 +105,7 @@ deploy_homolog:
   stage: deploy
   before_script:
     - ansible --version
+    - ansible-galaxy install -r requirements.yml
     - mv $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
     - mkdir -p ~/.ssh
@@ -134,10 +137,33 @@ deploy_prod:
       artifacts: true
     - job: setup_infra
 
+undo_deploy:
+  image: cytopia/ansible:2.13-infra
+  stage: cleanup
+  before_script:
+    - ansible --version
+    - ansible-galaxy install -r requirements.yml
+    - mv $HOSTS_FILE $ANSIBLE_ROOT
+    - cd $ANSIBLE_ROOT
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
+    - chmod 400 ~/.ssh/sige_ed25519
+    - chmod 700 ~/.ssh
+  script:
+    - ansible-playbook -i hosts -l homolog undo_deploy.yml --private-key ~/.ssh/sige_ed25519
+    - rm -f ~/.ssh/sige_ed25519
+  when: manual
+  cache: []
+  needs:
+    - job: setup_infra
+      artifacts: true
+    - job: deploy_homolog
+
 destroy_infra:
   stage: cleanup
   before_script:
     - cd ${TF_ROOT}
+    - export TF_VAR_do_domain=${DO_DOMAIN}
     - export TF_VAR_do_token=${DIGITALOCEAN_ACCESS_TOKEN}
     - export TF_VAR_ssh_key=${PUBLIC_SSH_KEY}
   script:
