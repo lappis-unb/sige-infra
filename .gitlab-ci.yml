@@ -106,9 +106,9 @@ deploy_homolog:
   stage: deploy
   before_script:
     - ansible --version
-    - ansible-galaxy install -r requirements.yml
     - mv $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
+    - ansible-galaxy install -r requirements.yml
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
     - chmod 400 ~/.ssh/sige_ed25519
