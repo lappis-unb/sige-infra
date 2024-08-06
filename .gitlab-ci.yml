@@ -5,7 +5,6 @@ image:
 variables:
   TF_ROOT: 'terraform/'
   ANSIBLE_ROOT: 'ansible/'
-  TF_CLI_ARGS: '-input=false'
   TF_STATE_NAME: 'terraform.tfstate'
   TF_ADDRESS: 'https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}'
   TF_USERNAME: ${GITLAB_USERNAME}
@@ -35,6 +34,8 @@ check_format:
 
 init_backend:
   stage: setup
+  variables:
+    TF_CLI_ARGS: '-input=false'
   before_script:
     - cd ${TF_ROOT}
   script:
