@@ -1,0 +1,56 @@
+---
+- name: Install Terraform
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Install required packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - gnupg
+        - curl
+        - software-properties-common
+        - lsb-release
+      register: installed_packages
+      until: installed_packages is succeeded
+
+    - name: Check if HashiCorp GPG key is already installed
+      ansible.builtin.stat:
+        path: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      register: gpg_key_check
+
+    - name: Download HashiCorp GPG key
+      ansible.builtin.get_url:
+        url: https://apt.releases.hashicorp.com/gpg
+        dest: /tmp/hashicorp.gpg
+        mode: "0644"
+      when: not gpg_key_check.stat.exists
+
+    - name: De-armor and move HashiCorp GPG key
+      ansible.builtin.command:
+        cmd: "gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg /tmp/hashicorp.gpg"
+      when: not gpg_key_check.stat.exists
+      args:
+        warn: false
+        creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+    - name: Add HashiCorp repository to the system
+      ansible.builtin.shell:
+        cmd: >
+          echo 'deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg]
+          https://apt.releases.hashicorp.com $(lsb_release -cs) main' |
+          tee /etc/apt/sources.list.d/hashicorp.list
+      when: not gpg_key_check.stat.exists
+      args:
+        warn: false
+      changed_when: false
+
+    - name: Update apt cache and install Terraform
+      ansible.builtin.apt:
+        update_cache: true
+        name: terraform
+        state: present
+      register: terraform_installed
+      until: terraform_installed is succeeded
