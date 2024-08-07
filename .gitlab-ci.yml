@@ -161,7 +161,7 @@ deploy_services:
     - chmod 400 ~/.ssh/sige_ed25519
     - chmod 700 ~/.ssh
   script:
-    - ansible-playbook -i hosts -l homolog deploy_sige.yml --private-key ~/.ssh/sige_ed25519
+    - ansible-playbook -i hosts -l homolog deploy_services.yml --private-key ~/.ssh/sige_ed25519
     - rm -f ~/.ssh/sige_ed25519
   when: manual
   cache: []
@@ -190,7 +190,6 @@ undo_deploy:
   needs:
     - job: setup_infra
       artifacts: true
-    - job: deploy_homolog
 
 destroy_infra:
   stage: cleanup
