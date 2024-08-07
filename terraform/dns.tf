@@ -26,3 +26,17 @@ resource "digitalocean_record" "traefik_sige" {
   value  = "${digitalocean_record.sige.fqdn}."
 }
 
+resource "digitalocean_record" "portainer_sige" {
+  domain = digitalocean_domain.domain.id
+  type   = "CNAME"
+  name   = "portainer.sige"
+  value  = "${digitalocean_record.sige.fqdn}."
+}
+
+resource "digitalocean_record" "uptimekuma_sige" {
+  domain = digitalocean_domain.domain.id
+  type   = "CNAME"
+  name   = "uptime-kuma.sige"
+  value  = "${digitalocean_record.sige.fqdn}."
+}
+

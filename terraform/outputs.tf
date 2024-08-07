@@ -13,3 +13,11 @@ output "api_sige_fqdn" {
 output "traefik_sige_fqdn" {
   value = digitalocean_record.traefik_sige.fqdn
 }
+
+output "portainer_sige_fqdn" {
+  value = digitalocean_record.portainer_sige.fqdn
+}
+
+output "uptimekuma_sige_fqdn" {
+  value = digitalocean_record.uptimekuma_sige.fqdn
+}
