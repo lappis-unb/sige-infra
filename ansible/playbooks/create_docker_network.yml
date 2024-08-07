@@ -2,6 +2,7 @@
 - name: Create docker network
   hosts: all
   gather_facts: false
+  become: true
   tasks:
     - name: Create docker network
       community.docker.docker_network:
