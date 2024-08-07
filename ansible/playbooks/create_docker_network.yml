@@ -1,0 +1,10 @@
+---
+- name: Create docker network
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Create docker network
+      community.general.docker_network:
+        name: traefik_proxy
+        state: present
+        driver: bridge

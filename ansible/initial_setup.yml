@@ -7,3 +7,6 @@
 
 - name: Install and configure Docker
   import_playbook: playbooks/install_docker.yml
+
+- name: Create docker network
+  import_playbook: playbooks/create_docker_network.yml
