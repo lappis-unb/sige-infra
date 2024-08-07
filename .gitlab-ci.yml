@@ -101,7 +101,7 @@ setup_infra:
     - job: create_infra
       artifacts: true
 
-deploy_homolog:
+deploy_backend:
   image: cytopia/ansible:2.13-infra
   stage: deploy
   before_script:
@@ -114,7 +114,7 @@ deploy_homolog:
     - chmod 400 ~/.ssh/sige_ed25519
     - chmod 700 ~/.ssh
   script:
-    - ansible-playbook -i hosts -l homolog deploy_sige.yml --private-key ~/.ssh/sige_ed25519
+    - ansible-playbook -i hosts -l homolog deploy_back.yml --private-key ~/.ssh/sige_ed25519
     - rm -f ~/.ssh/sige_ed25519
   when: manual
   cache: []

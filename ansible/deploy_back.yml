@@ -1,4 +1,4 @@
-- name: Deploy application using Docker Compose
+- name: Deploy backend api using Docker Compose
   hosts: all
   gather_facts: false
   vars_files:
