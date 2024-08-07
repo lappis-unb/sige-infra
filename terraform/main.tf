@@ -31,5 +31,8 @@ resource "null_resource" "update_host_file" {
 resource "digitalocean_project" "lappis_energy" {
   name        = "Lappis Energy Projects"
   description = "Projects related to energy"
-  resources   = [digitalocean_droplet.api_homolog.urn]
+  resources = [
+    digitalocean_droplet.api_homolog.urn,
+    digitalocean_domain.domain.urn
+  ]
 }

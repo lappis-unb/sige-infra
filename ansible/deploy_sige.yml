@@ -14,7 +14,6 @@
         version: "development"
         force: true
       register: git_output
-      notify: Build and start services
 
     - name: Show results of the git module
       ansible.builtin.debug:
