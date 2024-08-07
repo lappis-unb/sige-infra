@@ -87,6 +87,7 @@ setup_infra:
   stage: infra
   before_script:
     - ansible --version
+    - ansible-galaxy collection install community.docker
     - mv $HOSTS_FILE $ANSIBLE_ROOT
     - cd $ANSIBLE_ROOT
     - mkdir -p ~/.ssh
