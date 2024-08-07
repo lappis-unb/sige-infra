@@ -126,7 +126,27 @@ deploy_backend:
     name: homolog
     url: http://$DROPLET_IP
 
-deploy_prod:
+deploy_frontend:
+  image: cytopia/ansible:2.13-infra
+  stage: deploy
+  before_script:
+    - ansible --version
+    - mv $HOSTS_FILE $ANSIBLE_ROOT
+    - cd $ANSIBLE_ROOT
+    - ansible-galaxy install -r requirements.yml
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/sige_ed25519
+    - chmod 400 ~/.ssh/sige_ed25519
+    - chmod 700 ~/.ssh
+  script:
+    - ansible-playbook -i hosts -l homolog deploy_front.yml --private-key ~/.ssh/sige_ed25519
+    - rm -f ~/.ssh/sige_ed25519
+  when: manual
+  cache: []
+  needs:
+    - job: create_infra
+      artifacts: true
+    - job: setup_infra
   image: cytopia/ansible:2.13-infra
   stage: deploy
   script:
