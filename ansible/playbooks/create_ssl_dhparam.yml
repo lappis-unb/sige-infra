@@ -1,0 +1,9 @@
+---
+- name: Create OpenSSL DH parameters
+  hosts: all
+  become: true
+  tasks:
+    - name: Generate DH parameters file
+      ansible.builtin.command:
+        cmd: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+        creates: /etc/ssl/certs/dhparam.pem
