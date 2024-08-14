@@ -1,5 +1,5 @@
 ---
-- name: Install Terraform
+- name: Install Terraform (Debian)
   hosts: localhost
   become: true
 

@@ -4,7 +4,7 @@
   vars_files:
     - host_vars/repository.yml
   tasks:
-    - name: Stop services docker compose file
+    - name: Tear down existing services
       community.docker.docker_compose_v2:
         project_src: "{{ sige_master_path }}"
         files: docker-compose.yml
