@@ -1,0 +1,28 @@
+
+services:
+  nginx:
+    image: nginx:1.27.0
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs/dhparam.pem:/etc/nginx/dhparam.pem
+      - /var/www/html:/var/www/html
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/lib/letsencrypt:/var/lib/letsencrypt:ro
+
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/mediafiles:ro
+    networks:
+      - proxy-network
+
+networks:
+    proxy-network:
+        name: proxy-network
+        external: true
+
+volumes:
+  static_volume: {}
+  media_volume: {}
