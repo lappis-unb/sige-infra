@@ -44,3 +44,8 @@
       community.general.snap:
         name: certbot-dns-digitalocean
         state: present
+
+    - name: Install Certbot Cloudflare DNS plugin
+      community.general.snap:
+        name: certbot-dns-cloudflare
+        state: present
