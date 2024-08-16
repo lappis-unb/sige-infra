@@ -9,4 +9,4 @@
   import_playbook: playbooks/install_docker.yml
 
 - name: Create docker network
-  import_playbook: playbooks/create_docker_network.yml
+  import_playbook: playbooks/setup_docker.yml
