@@ -34,7 +34,7 @@
         --agree-tos
       args:
         creates: "/etc/letsencrypt/live/{{ do_domain_name }}/fullchain.pem"
-    
+
     # - name: Obtain SSL certificates using docker
     #   ansible.builtin.command: >
     #     docker run -it --rm
