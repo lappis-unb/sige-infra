@@ -1,15 +1,17 @@
 services:
   uptime-kuma:
-    container_name: ${container_name}
-    image: ${image}:${image_tag}
+    container_name: ${CONTAINER_NAME}
+    image: ${IMAGE}:${IMAGE_TAG}
     restart: unless-stopped
+    expose:
+      - ${PORT}
     volumes:
       - ./data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
       traefik.enable: "true"
-      traefik.http.routers.uptime-kuma.rule: "Host(`${hostname}`)"
-      traefik.http.services.uptime-kuma.loadbalancer.server.port: ${port}
+      traefik.http.routers.uptime-kuma.rule: "Host(`${HOSTNAME}`)"
+      traefik.http.services.uptime-kuma.loadbalancer.server.port: ${PORT}
       traefik.http.routers.uptime-kuma.entrypoints: "websecure"
       traefik.http.routers.uptime-kuma.tls.certresolver: "leprod"
     networks:

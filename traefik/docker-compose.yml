@@ -1,8 +1,8 @@
 
 services:
   traefik:
-    container_name: ${container_name}
-    image: ${image}:${image_tag}
+    container_name: ${CONTAINER_NAME}
+    image: ${IMAGE}:${IMAGE_TAG}
     restart: unless-stopped
     command:
       - "--api.insecure=true"
@@ -15,8 +15,8 @@ services:
       - "--certificatesresolvers.leprod.acme.httpchallenge=true"
       - "--certificatesresolvers.leprod.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.leprod.acme.storage=/etc/traefik/ssl-certs/acme.json"
-      - "--certificatesresolvers.leprod.acme.email=${email}"
-    ports:
+      - "--certificatesresolvers.leprod.acme.email=${EMAIL}"
+    ports: 
       - "80:80"
       - "443:443"
       - "8080:8080"
@@ -27,15 +27,15 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.dashboard.service: "api@internal"
-      traefik.http.routers.dashboard.rule: "Host(`${hostname}`)"
+      traefik.http.routers.dashboard.rule: "Host(`${HOSTNAME}`)"
       traefik.http.routers.dashboard.entrypoints: "websecure"
       traefik.http.routers.dashboard.middlewares: "auth"
       traefik.http.middlewares.auth.basicauth.usersfile: "/etc/traefik/users"
       traefik.http.routers.dashboard.tls.certresolver: "leprod"
     networks:
-        - proxy-network
+      - proxy-network
 
 networks:
-    proxy-network:
-        name: proxy-network
-        external: true
+  proxy-network:
+    name: proxy-network
+    driver: bridge

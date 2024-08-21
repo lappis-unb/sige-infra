@@ -1,15 +1,17 @@
 services:
   portainer:
-    container_name: ${container_name}
-    image: ${image}:${image_tag}
+    container_name: ${CONTAINER_NAME}
+    image: ${IMAGE}:${IMAGE_TAG}
     restart: unless-stopped
+    expose:
+      - ${PORT}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer-data:/data
     labels:
       traefik.enable: "true"
-      traefik.http.routers.portainer.rule: "Host(`${hostname}`)"
-      traefik.http.services.portainer.loadbalancer.server.port: ${port}
+      traefik.http.routers.portainer.rule: "Host(`${HOSTNAME}`)"
+      traefik.http.services.portainer.loadbalancer.server.port: ${PORT}
       traefik.http.routers.portainer.entrypoints: "websecure"
       traefik.http.routers.portainer.tls.certresolver: "leprod"
     networks:
