@@ -14,6 +14,7 @@ services:
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/mediafiles:ro
       - nextjs_static:/app/nextjs_static:ro
+      - nextjs_public:/app/nextjs_public:ro
     networks:
       - proxy-network
 
@@ -23,6 +24,8 @@ volumes:
   media_volume:
     external: true
   nextjs_static:
+    external: true
+  nextjs_public:
     external: true
 
 networks:
