@@ -1,27 +1,25 @@
 services:
   portainer:
-    container_name: portainer
-    image: portainer/portainer-ce:2.19.5-alpine
+    container_name: ${container_name}
+    image: ${image}:${image_tag}
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer-data:/data
     labels:
       traefik.enable: "true"
-      traefik.http.routers.portainer.rule: "Host(`portainer.sige.lappis.me`)"
-      traefik.http.services.portainer.loadbalancer.server.port: "9000"
-      traefik.http.routers.portainer.service: "portainer"
+      traefik.http.routers.portainer.rule: "Host(`${hostname}`)"
+      traefik.http.services.portainer.loadbalancer.server.port: ${port}
       traefik.http.routers.portainer.entrypoints: "websecure"
       traefik.http.routers.portainer.tls.certresolver: "leprod"
     networks:
-        - traefik_proxy
+      - proxy-network
 
 volumes:
   portainer-data:
     driver: local
 
 networks:
-    traefik_proxy:
-        name: traefik_proxy
+    proxy-network:
+        name: proxy-network
         external: true
-

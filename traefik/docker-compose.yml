@@ -1,21 +1,21 @@
 
 services:
   traefik:
-    image: traefik:3.1.2
-    container_name: traefik
+    container_name: ${container_name}
+    image: ${image}:${image_tag}
     restart: unless-stopped
     command:
       - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--providers.docker=true"
-      - "--providers.docker.network=traefik_proxy"
+      - "--providers.docker.network=proxy-network"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.leprod.acme.httpchallenge=true"
       - "--certificatesresolvers.leprod.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.leprod.acme.email=unb.sige@gmail.com"
       - "--certificatesresolvers.leprod.acme.storage=/etc/traefik/ssl-certs/acme.json"
+      - "--certificatesresolvers.leprod.acme.email=${email}"
     ports:
       - "80:80"
       - "443:443"
@@ -27,16 +27,15 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.dashboard.service: "api@internal"
-      traefik.http.routers.dashboard.rule: "Host(`traefik.sige.lappis.me`)"
+      traefik.http.routers.dashboard.rule: "Host(`${hostname}`)"
       traefik.http.routers.dashboard.entrypoints: "websecure"
       traefik.http.routers.dashboard.middlewares: "auth"
       traefik.http.middlewares.auth.basicauth.usersfile: "/etc/traefik/users"
       traefik.http.routers.dashboard.tls.certresolver: "leprod"
-
     networks:
-        - traefik_proxy
+        - proxy-network
 
 networks:
-    traefik_proxy:
-        name: traefik_proxy
+    proxy-network:
+        name: proxy-network
         external: true
